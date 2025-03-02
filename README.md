@@ -1,14 +1,14 @@
 # Description
 
-Ця програма реалізує програму у тому що люди могли відстежувати свої завдання, роботодавці могли давати завдання своїм працівникам і контролювати їх виконання і також вести аналіз виконаних завдань та окремих співробітників.
+This program implements the program in that people could track their tasks, employers could give tasks to their employees and monitor their performance, and also conduct an analysis of completed tasks and individual employees.
 
-У додатку роботодавці можуть створювати групи зі співробітниками та видавати завдання їм усім або роботодавці можуть створювати окрему групу з одним працівником та видавати завдання йому.
+In the application, employers can create groups with employees and issue tasks to all of them, or employers can create a separate group with one employee and issue tasks to him.
 
-Програма буде мати зручний функціонал фільтри та дуже інформативний аналіз виконаних завдань та окремих користувачів.
+The program will have convenient filter functionality and a very informative analysis of completed tasks and individual users.
 
-Ця програма реалізується для маленьких локальних магазинів, яким потрібен певний функціонал і для кожної мережі магізинів буде проявлятися окремий підхід.
+This program is implemented for small local stores that need certain functionality and for each chain of stores a separate approach will be shown.
 
-На даний момент додаток знаходиться в розробці, але розробляється вже з потенційними покупцями та з урахуванням їх побажань.
+At the moment, the application is under development, but is already being developed with potential buyers and taking into account their wishes.
 
 # Setting up Virtual Environment
 To set up a virtual environment for this application, follow these steps:
