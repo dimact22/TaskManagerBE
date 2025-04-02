@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shemas.users &mdash; Project name not set  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project name not set
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../routes/users.html">Users API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shemas/users.html">Schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project name not set</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">shemas.users</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for shemas.users</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Import the googlemaps library and dotenv to load environment variables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">EmailStr</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="c1"># Model to represent a user&#39;s registration data</span>
+<div class="viewcode-block" id="UserLogin">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.UserLogin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserLogin</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Схема для авторизації користувача.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        phone (str): Номер телефону користувача (мінімум 13 символів).</span>
+<span class="sd">        password (str): Пароль користувача (від 6 до 20 символів).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UserRegister">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.UserRegister">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserRegister</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">phone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="UserEdit">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.UserEdit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UserEdit</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="DeleteUserRequest">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.DeleteUserRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeleteUserRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">phone</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="DeleteGroupRequest">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.DeleteGroupRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeleteGroupRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="GroupCreateRequest">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.GroupCreateRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupCreateRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Название группы</span>
+    <span class="n">manager_phone</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># ID менеджера</span>
+    <span class="n">user_phones</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># Список пользователей</span></div>
+
+    
+<div class="viewcode-block" id="GroupEdit">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.GroupEdit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupEdit</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># Название группы</span>
+    <span class="n">manager_phone</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># ID менеджера</span>
+    <span class="n">user_phones</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># Список пользователей</span>
+    <span class="n">active</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+<div class="viewcode-block" id="Task">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.Task">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">startDate</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">endDate</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">startTime</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">endTime</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">repeatDays</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">group</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">taskType</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">importance</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">needphoto</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">needcomment</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+    
+<div class="viewcode-block" id="TaskEdit">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.TaskEdit">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskEdit</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">end_time</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">repeat_days</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">group</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">task_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">importance</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">created_by</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">taskid</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">needphoto</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">needcomment</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+
+<div class="viewcode-block" id="TaskTime">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.TaskTime">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskTime</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">finish_time</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pause_start</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">pause_end</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">id_task</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">keyTime</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="c1"># type: ignore</span></div>
+
+
+<div class="viewcode-block" id="TaskTimeCancel">
+<a class="viewcode-back" href="../../shemas/users.html#shemas.users.TaskTimeCancel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskTimeCancel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">cancel_time</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">id_task</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">keyTime</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

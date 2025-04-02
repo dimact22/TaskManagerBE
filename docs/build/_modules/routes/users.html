@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>routes.users &mdash; Project name not set  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project name not set
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../routes/users.html">Users API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project name not set</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">routes.users</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for routes.users</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">db.dbconn</span><span class="w"> </span><span class="kn">import</span> <span class="n">users_collections</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">completedtasks</span>  <span class="c1"># Assuming this is your database collection or function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">db.hash</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hash</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jose</span><span class="w"> </span><span class="kn">import</span> <span class="n">jwt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">jsonable_encoder</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shemas.users</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserLogin</span><span class="p">,</span> <span class="n">UserRegister</span><span class="p">,</span> <span class="n">DeleteUserRequest</span><span class="p">,</span> <span class="n">GroupCreateRequest</span><span class="p">,</span> <span class="n">DeleteGroupRequest</span><span class="p">,</span> <span class="n">UserEdit</span><span class="p">,</span> <span class="n">GroupEdit</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskTime</span><span class="p">,</span><span class="n">TaskTimeCancel</span><span class="p">,</span> <span class="n">TaskEdit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">middelware.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">auth_middleware_status_return</span><span class="p">,</span> <span class="n">verify_admin_token</span><span class="p">,</span> <span class="n">auth_middleware_phone_return</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bson</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObjectId</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">unquote</span>
+
+<span class="n">user_app</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>  <span class="c1"># Correct instantiation of APIRouter</span>
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserLogin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Авторизація користувача: аутентифікує користувача та повертає JWT токен.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user (UserLogin): Об&#39;єкт з телефоном та паролем користувача.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: JWT-токен у форматі {&quot;token&quot;: &lt;jwt_token&gt;}.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HTTPException: Якщо користувач не знайдений (400 BAD REQUEST).</span>
+<span class="sd">        HTTPException: Якщо пароль невірний (400 BAD REQUEST).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">found_user</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">})</span>  <span class="c1"># Access your DB here</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_user</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;User not found&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">Hash</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password</span><span class="p">,</span> <span class="n">found_user</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span><span class="s1">&#39;sub&#39;</span><span class="p">:</span> <span class="n">found_user</span><span class="p">[</span><span class="s2">&quot;phone&quot;</span><span class="p">],</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">found_user</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]},</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SecretJwt&quot;</span><span class="p">),</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;HS256&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">token</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Invalid credentials&quot;</span><span class="p">)</span>
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_status/</span><span class="si">{token}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">token</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SecretJwt&quot;</span><span class="p">),</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS256&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">))</span>
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/register&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">UserRegister</span><span class="p">):</span>
+    <span class="n">existing_user</span> <span class="o">=</span> <span class="n">users_collections</span> <span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">})</span> <span class="c1"># Check if the email already exists in the database</span>
+    <span class="k">if</span> <span class="n">existing_user</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;User already exists&quot;</span><span class="p">)</span> <span class="c1"># Return error if user exists</span>
+    <span class="n">hashed_password</span> <span class="o">=</span> <span class="n">Hash</span><span class="o">.</span><span class="n">bcrypt</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password</span><span class="p">)</span> <span class="c1"># Hash the password for security</span>
+    <span class="n">user</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">hashed_password</span>   
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">users_collections</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">user</span><span class="p">))</span> <span class="c1"># Insert new user into database</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;There is some problem with the database, please try again later&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Ok&quot;</span><span class="p">}</span> <span class="c1"># Return success message and token</span>
+
+<div class="viewcode-block" id="get_users">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_users">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_users&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_users</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$ne&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">}})</span>
+    <span class="c1"># Преобразуем _id в строку для каждого документа</span>
+    <span class="n">users_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+        <span class="n">user</span><span class="p">[</span><span class="s2">&quot;_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="s2">&quot;_id&quot;</span><span class="p">])</span>  <span class="c1"># Преобразуем _id в строку</span>
+        <span class="n">users_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">users_list</span></div>
+
+
+<div class="viewcode-block" id="delete_user">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.delete_user">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/delete_user&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">DeleteUserRequest</span><span class="p">):</span>
+    <span class="c1"># Проверяем валидность ObjectId</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ObjectId</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Invalid ID format&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">delete_one</span><span class="p">({</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)})</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">deleted_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;User not found&quot;</span><span class="p">)</span>
+    
+    <span class="n">tasks_for_delete</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;group_name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;_id&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;group_name&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">})]</span>
+    
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">tasks_for_delete</span><span class="p">)</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">delete_many</span><span class="p">({</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">})</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">update_many</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;user_phones&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">]}},</span>  <span class="c1"># Условие для поиска документов</span>
+    <span class="p">{</span><span class="s2">&quot;$pull&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user_phones&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">phone</span><span class="p">}}</span>   <span class="c1"># Удаление телефона из массива   </span>
+<span class="p">)</span>
+    <span class="n">tasks</span><span class="o">.</span><span class="n">delete_many</span><span class="p">({</span><span class="s1">&#39;group&#39;</span><span class="p">:{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tasks_for_delete</span><span class="p">]}})</span>
+    
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;User successfully deleted&quot;</span><span class="p">}</span></div>
+
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/delete_group&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_group</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="n">DeleteGroupRequest</span><span class="p">):</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">delete_one</span><span class="p">({</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">group_name</span><span class="p">})</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">deleted_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Group not found&quot;</span><span class="p">)</span>
+
+    <span class="n">tasks</span><span class="o">.</span><span class="n">delete_many</span><span class="p">({</span><span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">group_name</span><span class="p">})</span>
+    
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Group successfully deleted&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="get_users_add">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_users_add">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_users_add&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_users_add</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+        <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;$nin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;receive&quot;</span><span class="p">]</span> <span class="p">}</span> 
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>    
+            <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  
+            <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span>     
+        <span class="p">}</span>
+        <span class="p">);</span>   
+    <span class="n">users</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">users</span> </div>
+
+
+<div class="viewcode-block" id="get_users_receive">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_users_receive">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_users_receive&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_users_receive</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+        <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&quot;$nin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">]</span> <span class="p">}</span> 
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>    
+            <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  
+            <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span>     
+        <span class="p">}</span>
+        <span class="p">);</span>   
+    <span class="n">users</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">users</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">users</span> </div>
+
+
+<div class="viewcode-block" id="create_group">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.create_group">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/create_group/&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_group</span><span class="p">(</span><span class="n">group</span><span class="p">:</span> <span class="n">GroupCreateRequest</span><span class="p">):</span>
+    <span class="n">existing_group</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">group_name</span><span class="p">})</span> <span class="c1"># Check if the email already exists in the database</span>
+    <span class="k">if</span> <span class="n">existing_group</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;The group with this name already exists&quot;</span><span class="p">)</span> <span class="c1"># Return error if user exists</span>
+    <span class="n">group_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+        <span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">manager_phone</span><span class="p">,</span>
+        <span class="s2">&quot;user_phones&quot;</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">user_phones</span><span class="p">,</span>
+        <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+    <span class="n">groups</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">group_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Group successfully created&quot;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="get_groups">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_groups">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_groups/&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_groups</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="n">groups_all</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find</span><span class="p">({},</span> <span class="p">{</span>
+            <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>    
+            <span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  
+            <span class="s2">&quot;user_phones&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span>     
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">groups_all</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="edit_user">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.edit_user">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/edit_user/&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">edit_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">UserEdit</span><span class="p">):</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>  <span class="c1"># Если у вас поле &#39;_id&#39; в MongoDB, то используйте ObjectId</span>
+    <span class="n">update_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+        <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Hash</span><span class="o">.</span><span class="n">bcrypt</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+        <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">status</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">update_data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;No valid fields to update&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">update_one</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;$set&quot;</span><span class="p">:</span> <span class="n">update_data</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">matched_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;User not found&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;User updated successfully&quot;</span><span class="p">}</span>    </div>
+
+
+<div class="viewcode-block" id="edit_group">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.edit_group">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/edit_group/&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="n">verify_admin_token</span><span class="p">)])</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">edit_group</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">GroupEdit</span><span class="p">):</span>
+    <span class="n">update_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">manager_phone</span><span class="p">:</span>
+        <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">manager_phone</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">user_phones</span><span class="p">:</span>
+        <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;user_phones&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">user_phones</span>
+    <span class="n">update_data</span><span class="p">[</span><span class="s2">&quot;active&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">active</span>
+   
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">update_data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;No valid fields to update&quot;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">update_one</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">group_name</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;$set&quot;</span><span class="p">:</span> <span class="n">update_data</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">matched_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Group not found&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Group updated successfully&quot;</span><span class="p">}</span>    </div>
+
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_my_groups&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="n">phone</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span> 
+    <span class="n">results2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">results2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;group_name&quot;</span><span class="p">])</span>    
+    <span class="k">return</span> <span class="n">results2</span>  
+
+<div class="viewcode-block" id="get_info">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_info">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_my_info&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_info</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="n">phone</span><span class="p">},{</span><span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span> 
+    <span class="n">re2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">re2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">re2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonable_encoder</span><span class="p">(</span><span class="n">re2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_task">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.create_task">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/tasks&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_task</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">phone</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">group</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">users_collections</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="n">phone</span><span class="p">},{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span> <span class="ow">or</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;manager_phone&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">phone</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;У вас немає прав для виконання цієї задачі&quot;</span><span class="p">)</span>
+    <span class="n">task_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">startDate</span><span class="p">,</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">endDate</span><span class="p">,</span>
+        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">startTime</span><span class="p">,</span>
+        <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">endTime</span><span class="p">,</span>
+        <span class="s2">&quot;repeat_days&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">repeatDays</span><span class="p">,</span>
+        <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">taskType</span><span class="p">,</span>
+        <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">importance</span><span class="p">),</span>
+        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="n">phone</span><span class="p">,</span>
+        <span class="s1">&#39;needphoto&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">needphoto</span><span class="p">,</span>
+        <span class="s1">&#39;needcomment&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">needcomment</span><span class="p">,</span>
+        <span class="s2">&quot;created_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">task_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Task successfully saved to database&quot;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Failed to save task to database&quot;</span><span class="p">)</span></div>
+
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_my_task&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_tasks</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">phone</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;user_phones&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},{</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="n">compltasks</span> <span class="o">=</span> <span class="n">completedtasks</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phone</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;key_time&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="n">tasksCompleteIDs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">compltasks</span><span class="p">:</span>
+        <span class="n">tasksCompleteIDs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;key_time&#39;</span><span class="p">])</span>
+    
+    <span class="n">groups_name</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">r</span><span class="p">:</span>
+        <span class="n">groups_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;group_name&quot;</span><span class="p">])</span>
+    <span class="n">tasks_cursor</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$in&#39;</span><span class="p">:</span> <span class="n">groups_name</span><span class="p">}})</span><span class="o">.</span><span class="n">sort</span><span class="p">([(</span><span class="s1">&#39;importance&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+    <span class="n">user_tasks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tasks_cursor</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">user_tasks</span><span class="p">)):</span>
+        <span class="n">user_tasks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_tasks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;_id&quot;</span><span class="p">])</span>    
+    <span class="n">user_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tasksCompleteIDs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">user_tasks</span>
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/push_task&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">TaskTime</span><span class="p">,</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">task_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
+        <span class="s2">&quot;finish_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">finish_time</span><span class="p">,</span>
+        <span class="s2">&quot;pause_start&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">pause_start</span><span class="p">,</span>
+        <span class="s2">&quot;pause_end&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">pause_end</span><span class="p">,</span>
+        <span class="s2">&quot;id_task&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">id_task</span><span class="p">,</span>
+        <span class="s2">&quot;key_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">keyTime</span><span class="p">,</span>
+        <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="n">phone</span><span class="p">,</span>
+        <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>   
+    <span class="n">completedtasks</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">task_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Informations about task successfully saved to database&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="login_user">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.login_user">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/cancel_task&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">task_cancel</span><span class="p">:</span> <span class="n">TaskTimeCancel</span><span class="p">,</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">task_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;cancel_time&quot;</span><span class="p">:</span> <span class="n">task_cancel</span><span class="o">.</span><span class="n">cancel_time</span><span class="p">,</span>
+        <span class="s2">&quot;id_task&quot;</span><span class="p">:</span> <span class="n">task_cancel</span><span class="o">.</span><span class="n">id_task</span><span class="p">,</span>
+        <span class="s2">&quot;key_time&quot;</span><span class="p">:</span> <span class="n">task_cancel</span><span class="o">.</span><span class="n">keyTime</span><span class="p">,</span>
+        <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="n">phone</span><span class="p">,</span>
+        <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="n">task_cancel</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">}</span>   
+    <span class="n">completedtasks</span><span class="o">.</span><span class="n">insert_one</span><span class="p">(</span><span class="n">task_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Informations about task successfully saved to database&quot;</span><span class="p">}</span></div>
+
+
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_my_created_task/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_tasks</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">phone</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">tasks_cursor</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;created_by&#39;</span><span class="p">:</span> <span class="n">phone</span><span class="p">})</span><span class="o">.</span><span class="n">sort</span><span class="p">([(</span><span class="s1">&#39;importance&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+    <span class="n">user_tasks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tasks_cursor</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">user_tasks</span><span class="p">)):</span>
+        <span class="n">user_tasks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_tasks</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;_id&quot;</span><span class="p">])</span>    
+    <span class="k">return</span> <span class="n">user_tasks</span>
+
+<div class="viewcode-block" id="get_tasks">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.get_tasks">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/get_infoprocent_about_task/</span><span class="si">{group}</span><span class="s2">/</span><span class="si">{task_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_tasks</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;group_name&#39;</span><span class="p">:</span> <span class="n">group</span><span class="p">})</span> 
+    <span class="n">count2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">completedtasks</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;key_time&#39;</span><span class="p">:</span> <span class="n">task_id</span><span class="p">}))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">count2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">count2</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">[</span><span class="s1">&#39;user_phones&#39;</span><span class="p">]))</span> <span class="o">*</span> <span class="mi">100</span></div>
+
+    
+           
+
+<div class="viewcode-block" id="delete_group">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.delete_group">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/delete_task/</span><span class="si">{task_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_group</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">phone</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">delete_one</span><span class="p">({</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">task_id</span><span class="p">),</span> <span class="s1">&#39;created_by&#39;</span><span class="p">:</span><span class="n">phone</span><span class="p">})</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">deleted_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;The task was not found or you do not have sufficient rights&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Group successfully deleted&quot;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="change_task">
+<a class="viewcode-back" href="../../routes/users.html#routes.users.change_task">[docs]</a>
+<span class="nd">@user_app</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;/update_task/&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">change_task</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">TaskEdit</span><span class="p">,</span> <span class="n">phone</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">auth_middleware_phone_return</span><span class="p">)):</span>
+    <span class="n">task_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
+        <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">end_time</span><span class="p">,</span>
+        <span class="s2">&quot;repeat_days&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">repeat_days</span><span class="p">,</span>
+        <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+        <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">task_type</span><span class="p">,</span>
+        <span class="s2">&quot;importance&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">importance</span><span class="p">,</span>
+        <span class="s1">&#39;needcomment&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">needcomment</span><span class="p">,</span>
+        <span class="s1">&#39;needphoto&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">needphoto</span>
+    <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">update_one</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">ObjectId</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">taskid</span><span class="p">),</span> <span class="s1">&#39;created_by&#39;</span><span class="p">:</span><span class="n">phone</span><span class="p">},</span>  
+            <span class="p">{</span><span class="s2">&quot;$set&quot;</span><span class="p">:</span> <span class="n">task_data</span><span class="p">}</span>  
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Group successfully updated&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Failed to update task to database: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Failed to update task to database: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+    
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

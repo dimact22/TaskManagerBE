@@ -18,7 +18,8 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Users API" href="routes/users.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,11 +41,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Api Task Managment documentation</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="routes/users.html">Users API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shemas/users.html">Schemas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Documentation</a></li>
 </ul>
-</div>
+
         </div>
       </div>
     </nav>
@@ -71,15 +75,55 @@
              
   <section id="api-task-managment-documentation">
 <h1>Api Task Managment documentation<a class="headerlink" href="#api-task-managment-documentation" title="Link to this heading"></a></h1>
-<p>Add your content using <code class="docutils literal notranslate"><span class="pre">reStructuredText</span></code> syntax. See the
-<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText</a>
-documentation for details.</p>
+<section id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="routes/users.html">Users API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.change_task"><code class="docutils literal notranslate"><span class="pre">change_task()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.create_group"><code class="docutils literal notranslate"><span class="pre">create_group()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.create_task"><code class="docutils literal notranslate"><span class="pre">create_task()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.delete_group"><code class="docutils literal notranslate"><span class="pre">delete_group()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.delete_user"><code class="docutils literal notranslate"><span class="pre">delete_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.edit_group"><code class="docutils literal notranslate"><span class="pre">edit_group()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.edit_user"><code class="docutils literal notranslate"><span class="pre">edit_user()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_groups"><code class="docutils literal notranslate"><span class="pre">get_groups()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_info"><code class="docutils literal notranslate"><span class="pre">get_info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_tasks"><code class="docutils literal notranslate"><span class="pre">get_tasks()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_users"><code class="docutils literal notranslate"><span class="pre">get_users()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_users_add"><code class="docutils literal notranslate"><span class="pre">get_users_add()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.get_users_receive"><code class="docutils literal notranslate"><span class="pre">get_users_receive()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="routes/users.html#routes.users.login_user"><code class="docutils literal notranslate"><span class="pre">login_user()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shemas/users.html">Schemas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.DeleteGroupRequest"><code class="docutils literal notranslate"><span class="pre">DeleteGroupRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.DeleteUserRequest"><code class="docutils literal notranslate"><span class="pre">DeleteUserRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.GroupCreateRequest"><code class="docutils literal notranslate"><span class="pre">GroupCreateRequest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.GroupEdit"><code class="docutils literal notranslate"><span class="pre">GroupEdit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.TaskEdit"><code class="docutils literal notranslate"><span class="pre">TaskEdit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.TaskTime"><code class="docutils literal notranslate"><span class="pre">TaskTime</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.TaskTimeCancel"><code class="docutils literal notranslate"><span class="pre">TaskTimeCancel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.UserEdit"><code class="docutils literal notranslate"><span class="pre">UserEdit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.UserLogin"><code class="docutils literal notranslate"><span class="pre">UserLogin</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shemas/users.html#shemas.users.UserRegister"><code class="docutils literal notranslate"><span class="pre">UserRegister</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">API Documentation</a></li>
+</ul>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="routes/users.html" class="btn btn-neutral float-right" title="Users API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
