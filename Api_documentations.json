@@ -1,0 +1,1137 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "FastAPI",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/login": {
+            "post": {
+                "summary": "Login User",
+                "description": "Авторизація користувача: аутентифікує користувача та повертає JWT токен.\n\n**Запит:**\n- phone: Телефон користувача (строка)\n- password: Пароль користувача (строка)\n\n**Відповідь:**\n- token: JWT токен у форматі {\"token\": <jwt_token>} (строка)\n\n**Помилки:**\n- 400 BAD REQUEST: Якщо користувач не знайдений або пароль невірний\n\n**Приклад запиту:**\n```json\n{\n    \"phone\": \"+380123456789\",\n    \"password\": \"mysecretpassword\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"token\": \"your_jwt_token_here\"\n}\n```",
+                "operationId": "login_user_login_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLogin"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_status/{token}": {
+            "get": {
+                "summary": "Login User",
+                "operationId": "login_user_get_status__token__get",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "summary": "Login User",
+                "description": "Реєстрація користувача: Створює нового користувача в системі.\n\n**Запит:**\n- phone: Телефон користувача (строка)\n- name: Ім'я користувача (строка)\n- password: Пароль користувача (строка)\n\n**Відповідь:**\n- message: Статус запиту, повідомлення про успішну реєстрацію.\n\n**Помилки:**\n- 400 BAD REQUEST: Якщо користувач вже існує в базі.\n\n**Приклад запиту:**\n```json\n{\n    \"phone\": \"+380987654321\",\n    \"name\": \"Ivan Ivanov\",\n    \"password\": \"securepassword\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"User successfully registered\"\n}",
+                "operationId": "login_user_register_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRegister"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_users": {
+            "get": {
+                "summary": "Get Users",
+                "description": "Отримати список користувачів: Отримує список усіх користувачів, які не є адміністраторами.\n\n**Запит:**\n- Немає.\n\n**Відповідь:**\n- users: Список користувачів (масив об'єктів).\n  - _id: Унікальний ідентифікатор користувача (строка)\n  - name: Ім'я користувача (строка)\n  - phone: Телефон користувача (строка)\n  - status: Статус користувача (строка)\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"_id\": \"607d1f77bcf86cd799439011\",\n        \"name\": \"Ivan Ivanov\",\n        \"phone\": \"+380987654321\",\n        \"status\": \"user\"\n    },\n    {\n        \"_id\": \"607d1f77bcf86cd799439012\",\n        \"name\": \"Petro Petrov\",\n        \"phone\": \"+380987654322\",\n        \"status\": \"user\"\n    }\n]",
+                "operationId": "get_users_get_users_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delete_user": {
+            "post": {
+                "summary": "Delete User",
+                "description": "Видалення користувача: Видаляє користувача з бази даних.\n\n**Запит:**\n- id: ID користувача для видалення (строка)\n\n**Відповідь:**\n- message: Повідомлення про успішне видалення.\n\n**Помилки:**\n- 400 BAD REQUEST: Якщо ID користувача некоректне.\n- 404 NOT FOUND: Якщо користувача не знайдено.\n\n**Приклад запиту:**\n```json\n{\n    \"id\": \"63a5fe9d80c774c1a7e586fe\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"User successfully deleted\"\n}",
+                "operationId": "delete_user_delete_user_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteUserRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delete_group": {
+            "post": {
+                "summary": "Delete Group",
+                "description": "Видалення групи: Видаляє групу з бази даних та всі завдання, пов'язані з цією групою.\n\n**Запит:**\n- group_name: Назва групи для видалення (строка)\n\n**Відповідь:**\n- message: Повідомлення про успішне видалення групи.\n\n**Помилки:**\n- 404 NOT FOUND: Якщо групу не знайдено.\n\n**Приклад запиту:**\n```json\n{\n    \"group_name\": \"GroupName\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Group successfully deleted\"\n}\n```",
+                "operationId": "delete_group_delete_group_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteGroupRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_users_add": {
+            "get": {
+                "summary": "Get Users Add",
+                "description": "Отримання користувачів для додавання: Повертає список користувачів, які не мають статусу \"admin\" або \"receive\".\n\n**Запит:** \n- немає\n\n**Відповідь:**\n- users: Список користувачів з їх іменами та телефонами.\n\n**Приклад відповіді:**\n```json\n[\n    {\"name\": \"John Doe\", \"phone\": \"+380987654321\"},\n    {\"name\": \"Jane Doe\", \"phone\": \"+380987654322\"}\n]\n```",
+                "operationId": "get_users_add_get_users_add_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_users_receive": {
+            "get": {
+                "summary": "Get Users Receive",
+                "description": "Отримання користувачів для отримання: Повертає список користувачів, які не мають статусу \"admin\" або \"add\".\n\n**Запит:** \n- немає\n\n**Відповідь:**\n- users: Список користувачів з їх іменами та телефонами.\n\n**Приклад відповіді:**\n```json\n[\n    {\"name\": \"John Doe\", \"phone\": \"+380987654321\"},\n    {\"name\": \"Jane Doe\", \"phone\": \"+380987654322\"}\n]\n```",
+                "operationId": "get_users_receive_get_users_receive_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/create_group/": {
+            "post": {
+                "summary": "Create Group",
+                "description": "Створення групи: Створює нову групу в базі даних.\n\n**Запит:**\n- group_name: Назва групи (строка)\n- manager_phone: Телефон менеджера групи (строка)\n- user_phones: Список телефонів користувачів (список рядків)\n\n**Відповідь:**\n- message: Повідомлення про успішне створення групи.\n\n**Помилки:**\n- 400 BAD REQUEST: Якщо група з такою назвою вже існує.\n\n**Приклад запиту:**\n```json\n{\n    \"group_name\": \"Developers\",\n    \"manager_phone\": \"+380987654321\",\n    \"user_phones\": [\"+380987654322\", \"+380987654323\"]\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Group successfully created\"\n}\n```",
+                "operationId": "create_group_create_group__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GroupCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_groups/": {
+            "get": {
+                "summary": "Get Groups",
+                "description": "Отримання всіх груп: Повертає список всіх груп з бази даних.\n\n**Запит:** \n- немає\n\n**Відповідь:**\n- groups: Список груп з їх назвами, телефонами менеджерів, телефонами користувачів та активністю.\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"group_name\": \"Developers\",\n        \"manager_phone\": \"+380987654321\",\n        \"user_phones\": [\"+380987654322\", \"+380987654323\"],\n        \"active\": 1\n    }\n]\n```",
+                "operationId": "get_groups_get_groups__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/edit_user/": {
+            "post": {
+                "summary": "Edit User",
+                "description": "Оновлення користувача: Оновлює дані користувача в системі.\n\n**Запит:**\n- id: Унікальний ідентифікатор користувача (строка)\n- name: Нове ім'я користувача (строка, необов'язково)\n- password: Новий пароль користувача (строка, необов'язково)\n- status: Новий статус користувача (строка, необов'язково)\n\n**Відповідь:**\n- message: Статус запиту, повідомлення про успішне оновлення користувача.\n\n**Помилки:**\n- 400 BAD REQUEST: Якщо не було надано жодного дійсного поля для оновлення.\n- 404 NOT FOUND: Якщо користувач не знайдений.\n\n**Приклад запиту:**\n```json\n{\n    \"id\": \"607d1f77bcf86cd799439011\",\n    \"name\": \"Ivan Ivanov\",\n    \"password\": \"new_secure_password\",\n    \"status\": \"user\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"User updated successfully\"\n}",
+                "operationId": "edit_user_edit_user__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserEdit"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/edit_group/": {
+            "post": {
+                "summary": "Edit Group",
+                "description": "Оновлення групи: Оновлює дані групи в базі даних.\n\n**Запит:**\n- group_name: Назва групи (строка)\n- manager_phone: Телефон менеджера групи (необов'язково, рядок)\n- user_phones: Список телефонів користувачів (необов'язково, список рядків)\n- active: Активність групи (необов'язково, ціле число)\n\n**Відповідь:**\n- message: Повідомлення про успішне оновлення групи.\n\n**Помилки:**\n- 404 NOT FOUND: Якщо групу не знайдено.\n\n**Приклад запиту:**\n```json\n{\n    \"group_name\": \"Developers\",\n    \"manager_phone\": \"+380987654321\",\n    \"user_phones\": [\"+380987654322\", \"+380987654323\"],\n    \"active\": 1\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Group updated successfully\"\n}\n```",
+                "operationId": "edit_group_edit_group__post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GroupEdit"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_my_groups": {
+            "get": {
+                "summary": "Login User",
+                "description": "Отримання моїх груп: Повертає список груп, якими управляє користувач за номером телефону.\n\n**Запит:** \n- phone: Телефон користувача (строка)\n\n**Відповідь:**\n- groups: Список назв груп.\n\n**Приклад відповіді:**\n```json\n[\"Developers\", \"Managers\"]\n```",
+                "operationId": "login_user_get_my_groups_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_my_info": {
+            "get": {
+                "summary": "Get Info",
+                "description": "Отримання моєї інформації: Повертає інформацію про користувача за номером телефону.\n\n**Запит:** \n- phone: Телефон користувача (строка)\n\n**Відповідь:**\n- users: Інформація про користувача, без пароля.\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"name\": \"John Doe\",\n        \"phone\": \"+380987654321\",\n        \"status\": \"active\"\n    }\n]\n```",
+                "operationId": "get_info_get_my_info_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "post": {
+                "summary": "Create Task",
+                "description": "Створення задачі: Створює нову задачу в базі даних.\n\n**Запит:**\n- title: Назва задачі (строка)\n- description: Опис задачі (строка)\n- start_date: Дата початку задачі (строка)\n- end_date: Дата завершення задачі (строка)\n- start_time: Час початку задачі (строка)\n- end_time: Час завершення задачі (строка)\n- repeat_days: Дні повторення задачі (список цілих чисел)\n- group: Назва групи (строка)\n- task_type: Тип задачі (строка)\n- importance: Важливість задачі (ціле число)\n- needphoto: Чи потрібно фото (ціле число)\n- needcomment: Чи потрібно коментар (ціле число)\n\n**Відповідь:**\n- message: Повідомлення про успішне збереження задачі.\n\n**Помилки:**\n- 404 NOT FOUND: Якщо група не існує або користувач не має прав на створення задачі.\n\n**Приклад запиту:**\n```json\n{\n    \"title\": \"Complete report\",\n    \"description\": \"Finish the monthly report\",\n    \"start_date\": \"2025-04-01\",\n    \"end_date\": \"2025-04-02\",\n    \"start_time\": \"10:00\",\n    \"end_time\": \"18:00\",\n    \"repeat_days\": [1, 3, 5],\n    \"group\": \"Developers\",\n    \"task_type\": \"Work\",\n    \"importance\": 1,\n    \"needphoto\": 1,\n    \"needcomment\": 0\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Task successfully saved to database\"\n}\n```",
+                "operationId": "create_task_tasks_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Task"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_my_task": {
+            "get": {
+                "summary": "Get Tasks",
+                "description": "Отримання моїх завдань: Повертає список завдань, пов'язаних з групами, в яких користувач бере участь.\n\n**Запит:** \n- phone: Телефон користувача (строка)\n\n**Відповідь:**\n- tasks: Список завдань для користувача.\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"title\": \"Complete report\",\n        \"description\": \"Finish the monthly report\",\n        \"start_date\": \"2025-04-01\",\n        \"end_date\": \"2025-04-02\",\n        \"importance\": 1\n    }\n]\n```",
+                "operationId": "get_tasks_get_my_task_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/push_task": {
+            "post": {
+                "summary": "Login User",
+                "description": "Отримання моїх завдань: Повертає список завдань, пов'язаних з групами, в яких користувач бере участь.\n\n**Запит:** \n- phone: Телефон користувача (строка)\n\n**Відповідь:**\n- tasks: Список завдань для користувача.\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"title\": \"Complete report\",\n        \"description\": \"Finish the monthly report\",\n        \"start_date\": \"2025-04-01\",\n        \"end_date\": \"2025-04-02\",\n        \"importance\": 1\n    }\n]\n```",
+                "operationId": "login_user_push_task_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskTime"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cancel_task": {
+            "post": {
+                "summary": "Login User",
+                "description": "Скасування задачі: Зберігає інформацію про скасовану задачу в базі даних.\n\n**Запит:**\n- task_cancel: Дані про скасування задачі (об'єкт TaskTimeCancel)\n\n**Відповідь:**\n- message: Повідомлення про успішне збереження інформації про скасовану задачу.\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Informations about task successfully saved to database\"\n}\n```",
+                "operationId": "login_user_cancel_task_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskTimeCancel"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_my_created_task/": {
+            "get": {
+                "summary": "Get Tasks",
+                "description": "Отримати інформацію про завдання: Отримує завдання, створені поточним користувачем.\n\n**Запит:**\n- phone: Телефон поточного користувача (строка).\n\n**Відповідь:**\n- tasks: Список завдань, створених користувачем (масив об'єктів).\n  - _id: Унікальний ідентифікатор завдання (строка)\n  - title: Назва завдання (строка)\n  - description: Опис завдання (строка)\n  - start_date: Дата початку завдання (строка)\n  - end_date: Дата закінчення завдання (строка)\n  - start_time: Час початку завдання (строка)\n  - end_time: Час закінчення завдання (строка)\n  - importance: Важливість завдання (число)\n  - status: Статус завдання (число)\n\n**Приклад відповіді:**\n```json\n[\n    {\n        \"_id\": \"607d1f77bcf86cd799439013\",\n        \"title\": \"Task 1\",\n        \"description\": \"Description of task 1\",\n        \"start_date\": \"2025-04-01\",\n        \"end_date\": \"2025-04-02\",\n        \"start_time\": \"08:00\",\n        \"end_time\": \"12:00\",\n        \"importance\": 1,\n        \"status\": 0\n    },\n    {\n        \"_id\": \"607d1f77bcf86cd799439014\",\n        \"title\": \"Task 2\",\n        \"description\": \"Description of task 2\",\n        \"start_date\": \"2025-04-03\",\n        \"end_date\": \"2025-04-04\",\n        \"start_time\": \"10:00\",\n        \"end_time\": \"14:00\",\n        \"importance\": 2,\n        \"status\": 1\n    }\n]",
+                "operationId": "get_tasks_get_my_created_task__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/get_infoprocent_about_task/{group}/{task_id}": {
+            "get": {
+                "summary": "Get Tasks",
+                "operationId": "get_tasks_get_infoprocent_about_task__group___task_id__get",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Group"
+                        }
+                    },
+                    {
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Task Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/delete_task/{task_id}": {
+            "delete": {
+                "summary": "Delete Group",
+                "description": "Видалення задачі: Видаляє задачу з бази даних.\n\n**Запит:**\n- task_id: Ідентифікатор задачі (строка)\n\n**Відповідь:**\n- message: Повідомлення про успішне видалення задачі.\n\n**Помилки:**\n- 404 NOT FOUND: Якщо задача не знайдена або у вас немає прав на її видалення.\n\n**Приклад запиту:**\n```json\n{\n    \"task_id\": \"60d5c7b4e92c6c5e1f4d5c9b\"\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Group successfully deleted\"\n}\n```",
+                "operationId": "delete_group_delete_task__task_id__delete",
+                "parameters": [
+                    {
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Task Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/update_task/": {
+            "put": {
+                "summary": "Change Task",
+                "description": "Оновлення задачі: Оновлює дані задачі в базі даних.\n\n**Запит:**\n- taskid: Ідентифікатор задачі (строка)\n- title: Назва задачі (необов'язково, рядок)\n- description: Опис задачі (необов'язково, рядок)\n- start_date: Дата початку задачі (необов'язково, рядок)\n- end_date: Дата завершення задачі (необов'язково, рядок)\n- start_time: Час початку задачі (необов'язково, рядок)\n- end_time: Час завершення задачі (необов'язково, рядок)\n- repeat_days: Дні повторення задачі (необов'язково, список цілих чисел)\n- group: Назва групи (необов'язково, рядок)\n- task_type: Тип задачі (необов'язково, рядок)\n- importance: Важливість задачі (необов'язково, ціле число)\n- needphoto: Чи потрібно фото (необов'язково, ціле число)\n- needcomment: Чи потрібно коментар (необов'язково, ціле число)\n\n**Відповідь:**\n- message: Повідомлення про успішне оновлення задачі.\n\n**Помилки:**\n- 404 NOT FOUND: Якщо задача не знайдена або у вас немає прав на її оновлення.\n\n**Приклад запиту:**\n```json\n{\n    \"taskid\": \"60d5c7b4e92c6c5e1f4d5c9b\",\n    \"title\": \"Updated report\",\n    \"description\": \"Updated the monthly report\",\n    \"importance\": 2\n}\n```\n\n**Приклад відповіді:**\n```json\n{\n    \"message\": \"Group successfully updated\"\n}\n```",
+                "operationId": "change_task_update_task__put",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskEdit"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DeleteGroupRequest": {
+                "properties": {
+                    "group_name": {
+                        "type": "string",
+                        "title": "Group Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "group_name"
+                ],
+                "title": "DeleteGroupRequest"
+            },
+            "DeleteUserRequest": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "title": "Phone"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "phone"
+                ],
+                "title": "DeleteUserRequest",
+                "description": "Модель для видалення користувача: Використовується для видалення користувача за його ідентифікатором.\n\n**Атрибути:**\n- id: Унікальний ідентифікатор користувача (строка).\n- phone: Номер телефону користувача (строка).\n\n**Приклад:**\n```json\n{\n    \"id\": \"607d1f77bcf86cd799439011\",\n    \"phone\": \"+380987654321\"\n}\n```"
+            },
+            "GroupCreateRequest": {
+                "properties": {
+                    "group_name": {
+                        "type": "string",
+                        "title": "Group Name"
+                    },
+                    "manager_phone": {
+                        "type": "string",
+                        "title": "Manager Phone"
+                    },
+                    "user_phones": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "User Phones"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "group_name",
+                    "manager_phone",
+                    "user_phones"
+                ],
+                "title": "GroupCreateRequest",
+                "description": "Модель для створення групи: Використовується для створення нової групи в системі.\n\n**Атрибути:**\n- group_name: Назва групи (строка).\n- manager_phone: Номер телефону менеджера групи (строка).\n- user_phones: Список телефонів користувачів у групі (список строк).\n\n**Приклад:**\n```json\n{\n    \"group_name\": \"Team A\",\n    \"manager_phone\": \"+380987654321\",\n    \"user_phones\": [\"+380987654322\", \"+380987654323\"]\n}\n```"
+            },
+            "GroupEdit": {
+                "properties": {
+                    "group_name": {
+                        "type": "string",
+                        "title": "Group Name"
+                    },
+                    "manager_phone": {
+                        "type": "string",
+                        "title": "Manager Phone"
+                    },
+                    "user_phones": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "User Phones"
+                    },
+                    "active": {
+                        "type": "integer",
+                        "title": "Active"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "group_name",
+                    "manager_phone",
+                    "user_phones",
+                    "active"
+                ],
+                "title": "GroupEdit",
+                "description": "Модель для редагування групи: Використовується для оновлення даних групи в системі.\n\n**Атрибути:**\n- group_name: Назва групи (строка).\n- manager_phone: Номер телефону менеджера групи (строка).\n- user_phones: Список телефонів користувачів у групі (список строк).\n- active: Статус активності групи (ціле число, 1 - активна, 0 - неактивна).\n\n**Приклад:**\n```json\n{\n    \"group_name\": \"Team A\",\n    \"manager_phone\": \"+380987654321\",\n    \"user_phones\": [\"+380987654322\", \"+380987654323\"],\n    \"active\": 1\n}\n```"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "Task": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "title": "Startdate"
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "title": "Enddate"
+                    },
+                    "startTime": {
+                        "type": "string",
+                        "title": "Starttime"
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "title": "Endtime"
+                    },
+                    "repeatDays": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Repeatdays",
+                        "default": []
+                    },
+                    "group": {
+                        "type": "string",
+                        "title": "Group"
+                    },
+                    "taskType": {
+                        "type": "string",
+                        "title": "Tasktype"
+                    },
+                    "importance": {
+                        "type": "integer",
+                        "title": "Importance"
+                    },
+                    "needphoto": {
+                        "type": "integer",
+                        "title": "Needphoto"
+                    },
+                    "needcomment": {
+                        "type": "integer",
+                        "title": "Needcomment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "description",
+                    "startDate",
+                    "endDate",
+                    "startTime",
+                    "endTime",
+                    "group",
+                    "taskType",
+                    "importance",
+                    "needphoto",
+                    "needcomment"
+                ],
+                "title": "Task",
+                "description": "Модель для задачі: Використовується для створення або оновлення задачі.\n\n**Атрибути:**\n- title: Заголовок задачі (строка).\n- description: Опис задачі (строка).\n- startDate: Дата початку задачі (строка).\n- endDate: Дата закінчення задачі (строка).\n- startTime: Час початку задачі (строка).\n- endTime: Час закінчення задачі (строка).\n- repeatDays: Дні тижня, на які повторюється задача (список строк).\n- group: Назва групи, до якої належить задача (строка).\n- taskType: Тип задачі (строка).\n- importance: Важливість задачі (ціле число).\n- needphoto: Потрібен фото-звіт (ціле число, 1 - так, 0 - ні).\n- needcomment: Потрібен коментар (ціле число, 1 - так, 0 - ні).\n\n**Приклад:**\n```json\n{\n    \"title\": \"Task 1\",\n    \"description\": \"Task description\",\n    \"startDate\": \"2025-04-01\",\n    \"endDate\": \"2025-04-02\",\n    \"startTime\": \"08:00\",\n    \"endTime\": \"09:00\",\n    \"repeatDays\": [\"Monday\", \"Wednesday\"],\n    \"group\": \"Team A\",\n    \"taskType\": \"Urgent\",\n    \"importance\": 1,\n    \"needphoto\": 1,\n    \"needcomment\": 1\n}\n```"
+            },
+            "TaskEdit": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "title": "Start Date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "title": "End Date"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "title": "Start Time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "title": "End Time"
+                    },
+                    "repeat_days": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Repeat Days",
+                        "default": []
+                    },
+                    "group": {
+                        "type": "string",
+                        "title": "Group"
+                    },
+                    "task_type": {
+                        "type": "string",
+                        "title": "Task Type"
+                    },
+                    "importance": {
+                        "type": "integer",
+                        "title": "Importance"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "title": "Created By"
+                    },
+                    "taskid": {
+                        "type": "string",
+                        "title": "Taskid"
+                    },
+                    "needphoto": {
+                        "type": "integer",
+                        "title": "Needphoto"
+                    },
+                    "needcomment": {
+                        "type": "integer",
+                        "title": "Needcomment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "description",
+                    "start_date",
+                    "end_date",
+                    "start_time",
+                    "end_time",
+                    "group",
+                    "task_type",
+                    "importance",
+                    "created_by",
+                    "taskid",
+                    "needphoto",
+                    "needcomment"
+                ],
+                "title": "TaskEdit",
+                "description": "Модель для редагування задачі: Використовується для оновлення задачі.\n\n**Атрибути:**\n- title: Заголовок задачі (строка).\n- description: Опис задачі (строка).\n- start_date: Дата початку задачі (строка).\n- end_date: Дата закінчення задачі (строка).\n- start_time: Час початку задачі (строка).\n- end_time: Час закінчення задачі (строка).\n- repeat_days: Дні тижня, на які повторюється задача (список строк).\n- group: Назва групи, до якої належить задача (строка).\n- task_type: Тип задачі (строка).\n- importance: Важливість задачі (ціле число).\n- created_by: Номер телефону користувача, який створив задачу (строка).\n- taskid: Унікальний ідентифікатор задачі (строка).\n- needphoto: Потрібен фото-звіт (ціле число, 1 - так, 0 - ні).\n- needcomment: Потрібен коментар (ціле число, 1 - так, 0 - ні).\n\n**Приклад:**\n```json\n{\n    \"title\": \"Updated Task 1\",\n    \"description\": \"Updated description\",\n    \"start_date\": \"2025-04-01\",\n    \"end_date\": \"2025-04-02\",\n    \"start_time\": \"09:00\",\n    \"end_time\": \"10:00\",\n    \"repeat_days\": [\"Tuesday\"],\n    \"group\": \"Team A\",\n    \"task_type\": \"Urgent\",\n    \"importance\": 2,\n    \"created_by\": \"+380987654321\",\n    \"taskid\": \"607d1f77bcf86cd799439012\",\n    \"needphoto\": 1,\n    \"needcomment\": 1\n}\n```"
+            },
+            "TaskTime": {
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "title": "Start Time"
+                    },
+                    "finish_time": {
+                        "type": "string",
+                        "title": "Finish Time"
+                    },
+                    "pause_start": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Pause Start"
+                    },
+                    "pause_end": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Pause End"
+                    },
+                    "id_task": {
+                        "type": "string",
+                        "title": "Id Task"
+                    },
+                    "keyTime": {
+                        "type": "string",
+                        "title": "Keytime"
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "finish_time",
+                    "pause_start",
+                    "pause_end",
+                    "id_task",
+                    "keyTime",
+                    "comment"
+                ],
+                "title": "TaskTime",
+                "description": "Модель для часу задачі: Використовується для відправки часу виконання задачі.\n\n**Атрибути:**\n- start_time: Час початку задачі (строка).\n- finish_time: Час завершення задачі (строка).\n- pause_start: Час початку паузи (список строк).\n- pause_end: Час закінчення паузи (список строк).\n- id_task: Ідентифікатор задачі (строка).\n- keyTime: Унікальний ключ часу (строка).\n- comment: Коментар до задачі (необов'язково).\n\n**Приклад:**\n```json\n{\n    \"start_time\": \"09:00\",\n    \"finish_time\": \"10:00\",\n    \"pause_start\": [\"09:30\"],\n    \"pause_end\": [\"09:40\"],\n    \"id_task\": \"607d1f77bcf86cd799439012\",\n    \"keyTime\": \"2025-04-01T09:00\",\n    \"comment\": \"Paused for a break\"\n}\n```"
+            },
+            "TaskTimeCancel": {
+                "properties": {
+                    "cancel_time": {
+                        "type": "string",
+                        "title": "Cancel Time"
+                    },
+                    "id_task": {
+                        "type": "string",
+                        "title": "Id Task"
+                    },
+                    "keyTime": {
+                        "type": "string",
+                        "title": "Keytime"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "title": "Comment"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "cancel_time",
+                    "id_task",
+                    "keyTime",
+                    "comment"
+                ],
+                "title": "TaskTimeCancel",
+                "description": "Модель для скасування часу задачі: Використовується для скасування часу задачі.\n\n**Атрибути:**\n- cancel_time: Час скасування задачі (строка).\n- id_task: Ідентифікатор задачі (строка).\n- keyTime: Унікальний ключ часу (строка).\n- comment: Коментар до скасування (строка).\n\n**Приклад:**\n```json\n{\n    \"cancel_time\": \"2025-04-01T10:00\",\n    \"id_task\": \"607d1f77bcf86cd799439012\",\n    \"keyTime\": \"2025-04-01T09:00\",\n    \"comment\": \"Task cancelled due to unforeseen circumstances\"\n}\n```"
+            },
+            "UserEdit": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "status",
+                    "password"
+                ],
+                "title": "UserEdit",
+                "description": "Модель для редагування користувача: Використовується для оновлення даних користувача в системі.\n\n**Атрибути:**\n- id: Унікальний ідентифікатор користувача (строка).\n- name: Нове ім'я користувача (строка, необов'язково).\n- password: Новий пароль користувача (строка, необов'язково).\n- status: Новий статус користувача (строка, необов'язково).\n\n**Приклад:**\n```json\n{\n    \"id\": \"607d1f77bcf86cd799439011\",\n    \"name\": \"Ivan Ivanov\",\n    \"password\": \"new_secure_password\",\n    \"status\": \"admin\"\n}\n```"
+            },
+            "UserLogin": {
+                "properties": {
+                    "phone": {
+                        "type": "string",
+                        "minLength": 13,
+                        "title": "Phone"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "minLength": 6,
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "phone",
+                    "password"
+                ],
+                "title": "UserLogin",
+                "description": "Модель для авторизації користувача: Використовується для перевірки даних користувача при авторизації.\n\n**Атрибути:**\n- phone: Номер телефону користувача (мінімум 13 символів).\n- password: Пароль користувача (від 6 до 20 символів).\n\n**Приклад:**\n```json\n{\n    \"phone\": \"+380987654321\",\n    \"password\": \"securepassword\"\n}\n```"
+            },
+            "UserRegister": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "minLength": 13,
+                        "title": "Phone"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "minLength": 6,
+                        "title": "Password"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "phone",
+                    "password",
+                    "status"
+                ],
+                "title": "UserRegister",
+                "description": "Модель для реєстрації користувача: Використовується для створення нового користувача в системі.\n\n**Атрибути:**\n- name: Ім'я користувача (строка).\n- phone: Номер телефону користувача (мінімум 13 символів).\n- password: Пароль користувача (від 6 до 20 символів).\n- status: Статус користувача (строка, наприклад \"user\", \"admin\").\n\n**Приклад:**\n```json\n{\n    \"name\": \"Ivan Ivanov\",\n    \"phone\": \"+380987654321\",\n    \"password\": \"securepassword\",\n    \"status\": \"user\"\n}\n```"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
