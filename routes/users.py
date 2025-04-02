@@ -15,7 +15,17 @@ user_app = APIRouter()  # Correct instantiation of APIRouter
 @user_app.post("/login")
 async def login_user(user: UserLogin):
     """
-    Login user: Authenticates and returns a JWT token.
+    Авторизація користувача: аутентифікує користувача та повертає JWT токен.
+
+    Args:
+        user (UserLogin): Об'єкт з телефоном та паролем користувача.
+
+    Returns:
+        dict: JWT-токен у форматі {"token": <jwt_token>}.
+
+    Raises:
+        HTTPException: Якщо користувач не знайдений (400 BAD REQUEST).
+        HTTPException: Якщо пароль невірний (400 BAD REQUEST).
     """
     
     found_user = users_collections.find_one({"phone": user.phone})  # Access your DB here

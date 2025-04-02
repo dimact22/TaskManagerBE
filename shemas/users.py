@@ -7,6 +7,13 @@ from typing import List, Optional
 
 # Model to represent a user's registration data
 class UserLogin(BaseModel):
+    """
+    Схема для авторизації користувача.
+
+    Attributes:
+        phone (str): Номер телефону користувача (мінімум 13 символів).
+        password (str): Пароль користувача (від 6 до 20 символів).
+    """
     phone: str = Field(..., min_length=13)
     password: str = Field(..., min_length=6, max_length=20)
 

@@ -29,6 +29,19 @@ async def auth_middleware_status_return(request: Request):
         raise HTTPException(status_code=404, detail="Some error")
 
 async def auth_middleware_phone_return(request: Request):
+    """
+    Middleware для перевірки JWT токена та отримання номера телефону користувача.
+
+    Args:
+        request (Request): HTTP-запит з заголовком Authorization.
+
+    Returns:
+        str: Номер телефону користувача, який міститься в токені.
+
+    Raises:
+        HTTPException: Якщо токен недійсний або строк дії закінчився (403 FORBIDDEN).
+        HTTPException: Якщо сталася інша помилка (404 NOT FOUND).
+    """
     try:
         credentials: HTTPAuthorizationCredentials = await security(request)
         token = credentials.credentials
