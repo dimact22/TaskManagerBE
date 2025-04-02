@@ -67,27 +67,27 @@ Install MongoDB Compass:
 Download and install MongoDB Compass, a GUI for MongoDB, to visualize and manage your MongoDB data.
 
 Get your personall link to mongoDB container and write it in .env file
- 
- # Документування коду в цьому проєкті
- 
- ## Загальні правила
- 1. Використовуйте **Google Style docstrings** для функцій та класів.
- 2. Для FastAPI-ендпоінтів додавайте **summary** та **description**.
- 3. Використовуйте **типізацію** (`int`, `str`, `list`, `dict`, тощо).
- 4. Для опису моделей використовуйте **Pydantic**.
- 
- ## Приклади
- 
- ### Документування функції:
- ```python
- def example_function(param: str) -> str:
-     """
-     Пояснення, що робить ця функція.
- 
-     Args:
-         param (str): Вхідний параметр.
- 
-     Returns:
-         str: Результат роботи функції.
-     """
-     return f"Hello, {param}"
+
+# Документування коду в цьому проєкті
+
+## Загальні правила
+1. Використовуйте **Google Style docstrings** для функцій та класів.
+2. Для FastAPI-ендпоінтів додавайте **summary** та **description**.
+3. Використовуйте **типізацію** (`int`, `str`, `list`, `dict`, тощо).
+4. Для опису моделей використовуйте **Pydantic**.
+
+## Приклади
+
+### Документування функції:
+```python
+def example_function(param: str) -> str:
+    """
+    Пояснення, що робить ця функція.
+
+    Args:
+        param (str): Вхідний параметр.
+
+    Returns:
+        str: Результат роботи функції.
+    """
+    return f"Hello, {param}"
