@@ -1,72 +1,128 @@
-# Description
+# *README: Інструкція для розробника*
 
-This program implements the program in that people could track their tasks, employers could give tasks to their employees and monitor their performance, and also conduct an analysis of completed tasks and individual employees.
+*Цей документ містить покрокову інструкцію для розробника, який хоче приєднатися до проекту. Передбачено, що у вас свіже встановлена операційна система і немає необхідного програмного забезпечення.*
 
-In the application, employers can create groups with employees and issue tasks to all of them, or employers can create a separate group with one employee and issue tasks to him.
+## *1. Необхідні залежності та програмне забезпечення*
 
-The program will have convenient filter functionality and a very informative analysis of completed tasks and individual users.
+*Перед початком роботи необхідно встановити:*
 
-This program is implemented for small local stores that need certain functionality and for each chain of stores a separate approach will be shown.
+- ***Python**** (рекомендована версія 3.10 або новіша)*
+- ***Git**** (для клонування репозиторію)*
+- ***Virtualenv**** (віртуальне середовище Python)*
+- ***MongoDB Atlas**** (онлайн база даних MongoDB)*
 
-At the moment, the application is under development, but is already being developed with potential buyers and taking into account their wishes.
+## *2. Клонування репозиторію*
 
-# Setting up Virtual Environment
-To set up a virtual environment for this application, follow these steps:
+```bash
+git clone https://github.com/dimact22/TaskManagerBE.git
+cd your-repo
+```
 
-1. Open a command prompt at the root of the application's folder (TaskManagment).
-2. Create a directory named venv:
+## *3. Налаштування середовища розробки*
 
-    `mkdir venv`
+*Створіть та активуйте віртуальне середовище **`venv`**:*
 
-3. Navigate into 'venv
+```bash
+python -m venv venv
+```
 
-    `cd venv`
+### ***Для Windows:***
 
-4. create a virtual enviroment named 'Taskmanagment' using Python's 'venv' module: 
+```bash
+venv\Scripts\activate
+```
 
-    ` python -m venv Taskmanagment`
+### ***Для macOS/Linux:***
 
-5. activate the virtual enviroment 
+```bash
+source venv/bin/activate
+```
 
-on Windows:
+## 4. Конфігурація підключення до бази даних
 
-`venv/Scripts/activate`
+Проект використовує **MongoDB Atlas** для зберігання даних. Щоб підключитися, потрібно:
+1. Створити обліковий запис у [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Створити новий кластер
+3. Отримати рядок підключення у форматі:
+   ```sh
+   mongodb+srv://<username>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority
+   ```
+4. Створити файл `.env` у кореневій папці проекту та додати туди змінні середовища:
+   ```ini
+   MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority
+   ```
 
-on macOS/Linux
+---
 
-`venv/bin/activate`
+## *5. Встановлення та конфігурація залежностей*
 
-# Managing the Stack(Backend)
-## Install Dependencies
+*Встановіть необхідні пакети з **`requirements.txt`**:*
 
-1. Install the backend dependencies
+```bash
+pip install -r requirements.txt
+```
 
-    `pip install -r requirements.txt`
+## 6. Налаштування змінних середовища
 
-## Run the Application
+Створіть `.env` файл у кореневій директорії та додайте наступні змінні:
 
-1. Start the FastAPI server:
+```
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority
+SECRET_KEY=your_secret_key
+```
 
-  `uvicorn main:app --reload`
+Замініть `<username>`, `<password>` і `<dbname>` на ваші дані з MongoDB Atlas.
 
-2. Access Swagger UI:
+## 7. Запуск проекту у режимі розробки
 
-Open your browser and navigate to http://localhost:8000/docs to access the Swagger UI documentation.
+```sh
+poetry run uvicorn main:app --reload
+```
 
-## Tools and Technologies
-### MongoDB
+Сервер буде доступний за адресою: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-This application uses MongoDB as the database. Follow these steps to set up MongoDB:
+---
 
-Install MongoDB:
+## 8. Базові команди та операції
 
-Visit the MongoDB Download Center and follow the instructions to install MongoDB on your system.
+### Оновлення залежностей
+```sh
+pip update
+```
 
-Install MongoDB Compass:
+### Запуск тестів
+```sh
+pytest
+```
 
-Download and install MongoDB Compass, a GUI for MongoDB, to visualize and manage your MongoDB data.
+### Форматування коду
+```sh
+black .
+```
 
-Get your personall link to mongoDB container and write it in .env file
+## 9. Доступ до Swagger UI
+
+Після запуску API ви можете переглянути документацію за адресою:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+або у форматі OpenAPI:
+
+```
+http://127.0.0.1:8000/openapi.json
+```
+
+## 10. Завершення роботи
+
+Щоб вимкнути віртуальне середовище:
+
+```bash
+deactivate
+```
+
+---
 
 # Документування коду в цьому проєкті
 
