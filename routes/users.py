@@ -9,8 +9,10 @@ from shemas.users import UserLogin, UserRegister, DeleteUserRequest, GroupCreate
 from middelware.auth import auth_middleware_status_return, verify_admin_token, auth_middleware_phone_return
 from bson import ObjectId
 from datetime import datetime
+import uuid
 from urllib.parse import unquote
-
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 user_app = APIRouter()  # Correct instantiation of APIRouter
 
 @user_app.post("/login")
@@ -43,35 +45,35 @@ async def login_user(user: UserLogin):
     ```
     """
     
-    try:
-        logger.info(f"Attempting login for user: {user.phone}")
-        
-        found_user = users_collections.find_one({"phone": user.phone})  # DB operation
-        if not found_user:
-            logger.warning(f"Login failed: user {user.phone} not found.")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User not found"
-            )
+    found_user = users_collections.find_one({"phone": user.phone})
+    
+    if not found_user:
+        error_id = str(uuid.uuid4())  # Генеруємо унікальний ID для помилки
+        logger.warning(f"[{error_id}] Login failed for {user.phone}: not found", extra={'user': user.phone})
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"msg": "Користувача не знайдено", "error_id": error_id}
+        )
 
-        if Hash.verify(user.password, found_user["password"]):
-            token = jwt.encode(
-                {'sub': found_user["phone"], 'status': found_user['status']},
-                os.getenv("SecretJwt"),
-                algorithm='HS256'
-            )
-            logger.info(f"User {user.phone} successfully logged in.")
-            return {"token": token}
-        else:
-            logger.warning(f"Invalid credentials for user: {user.phone}")
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+    # Перевірка пароля
+    if not pwd_context.verify(user.password, found_user["password"]):
+        error_id = str(uuid.uuid4())  # Генеруємо новий унікальний ID для помилки
+        logger.warning(f"[{error_id}] Wrong password for {user.phone}", extra={'user': user.phone})
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"msg": "Невірний пароль", "error_id": error_id}
+        )
 
-    except HTTPException as http_err:
-        logger.error(f"HTTPException during login: {http_err.detail}")
-        raise http_err  # важливо не приховувати
-    except Exception as err:
-        logger.critical(f"Unexpected error during login: {err}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+    # Генерація токену
+    token = jwt.encode({
+        "sub": user.phone,  # Зазначаємо суб'єкта (phone)
+        "exp": 3600  # Термін дії токену (1 година)
+    }, "your_secret_key", algorithm="HS256")
+
+    # Логування успішного входу
+    logger.info(f"User {user.phone} logged in successfully", extra={'user': user.phone})
+    
+    return {"token": token}
 
 @user_app.get("/get_status/{token}")
 async def login_user(token:str):

@@ -18,11 +18,11 @@ async def custom_openapi():
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("🚀 Application is starting...")
+    logger.info("Application is starting...")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    logger.info("🛑 Application is shutting down...")
+    logger.info("Application is shutting down...")
     
 # Add CORS middleware to handle cross-origin requests
 app.add_middleware(
