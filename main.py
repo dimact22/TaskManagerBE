@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.models import OpenAPI
+from logger import logger
 from fastapi.openapi.utils import get_openapi
 from routes.users import user_app as users  # Import the correct router object
 
@@ -14,6 +15,15 @@ async def custom_openapi():
         description="Custom description of my API",
         routes=app.routes,
     )
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("🚀 Application is starting...")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("🛑 Application is shutting down...")
+    
 # Add CORS middleware to handle cross-origin requests
 app.add_middleware(
     CORSMiddleware,

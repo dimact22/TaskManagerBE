@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends, Request
 from db.dbconn import users_collections, groups, tasks, completedtasks  # Assuming this is your database collection or function
 from db.hash import Hash
 from jose import jwt
+from logger import logger
 from fastapi.encoders import jsonable_encoder
 import os
 from shemas.users import UserLogin, UserRegister, DeleteUserRequest, GroupCreateRequest, DeleteGroupRequest, UserEdit, GroupEdit, Task, TaskTime,TaskTimeCancel, TaskEdit
@@ -31,8 +32,7 @@ async def login_user(user: UserLogin):
     ```json
     {
         "phone": "+380123456789",
-        "password": "mysecretpassword"
-    }
+        "password": "mysecretpassword"    }
     ```
 
     **Приклад відповіді:**
@@ -43,16 +43,35 @@ async def login_user(user: UserLogin):
     ```
     """
     
-    found_user = users_collections.find_one({"phone": user.phone})  # Access your DB here
-    
-    if not found_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
-    
-    if Hash.verify(user.password, found_user["password"]):
-        token = jwt.encode({'sub': found_user["phone"], 'status': found_user['status']}, os.getenv("SecretJwt"), algorithm='HS256')
-        return {"token": token}
-    else:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+    try:
+        logger.info(f"Attempting login for user: {user.phone}")
+        
+        found_user = users_collections.find_one({"phone": user.phone})  # DB operation
+        if not found_user:
+            logger.warning(f"Login failed: user {user.phone} not found.")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User not found"
+            )
+
+        if Hash.verify(user.password, found_user["password"]):
+            token = jwt.encode(
+                {'sub': found_user["phone"], 'status': found_user['status']},
+                os.getenv("SecretJwt"),
+                algorithm='HS256'
+            )
+            logger.info(f"User {user.phone} successfully logged in.")
+            return {"token": token}
+        else:
+            logger.warning(f"Invalid credentials for user: {user.phone}")
+            raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    except HTTPException as http_err:
+        logger.error(f"HTTPException during login: {http_err.detail}")
+        raise http_err  # важливо не приховувати
+    except Exception as err:
+        logger.critical(f"Unexpected error during login: {err}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @user_app.get("/get_status/{token}")
 async def login_user(token:str):
