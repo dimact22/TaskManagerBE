@@ -11,9 +11,15 @@ from bson import ObjectId
 from datetime import datetime
 import uuid
 from urllib.parse import unquote
+from memory_profiler import profile
+from memory_profiler import memory_usage
 from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 user_app = APIRouter()  # Correct instantiation of APIRouter
+
+# Функція для моніторингу пам'яті
+def profile_memory():
+    return memory_usage()
 
 @user_app.post("/login")
 async def login_user(user: UserLogin):
@@ -44,9 +50,9 @@ async def login_user(user: UserLogin):
     }
     ```
     """
-    
+    memory_before = profile_memory()
     found_user = users_collections.find_one({"phone": user.phone})
-    
+    memory_after = profile_memory()
     if not found_user:
         error_id = str(uuid.uuid4())  # Генеруємо унікальний ID для помилки
         logger.warning(f"[{error_id}] Login failed for {user.phone}: not found", extra={'user': user.phone})
@@ -72,7 +78,8 @@ async def login_user(user: UserLogin):
 
     # Логування успішного входу
     logger.info(f"User {user.phone} logged in successfully", extra={'user': user.phone})
-    
+    memory_after_token = profile_memory()
+    logger.info(f"Memory usage after generating token: {memory_after_token[0] - memory_after[0]} MiB")
     return {"token": token}
 
 @user_app.get("/get_status/{token}")

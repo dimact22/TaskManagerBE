@@ -1,10 +1,14 @@
 from fastapi import FastAPI
+import cProfile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.models import OpenAPI
 from logger import logger
+from memory_profiler import profile
 from fastapi.openapi.utils import get_openapi
 from routes.users import user_app as users  # Import the correct router object
 
+profiler = cProfile.Profile()
+profiler.enable()
 # Initialize FastAPI app
 app = FastAPI()
 @app.get("/openapi.json", include_in_schema=False)
@@ -23,6 +27,8 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Application is shutting down...")
+    profiler.disable()
+    profiler.dump_stats("profile_results.prof")
     
 # Add CORS middleware to handle cross-origin requests
 app.add_middleware(

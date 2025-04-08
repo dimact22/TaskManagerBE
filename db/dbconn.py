@@ -13,6 +13,7 @@ client = MongoClient(mongo_uri)
 
 # Define collections for apartments, users, and temporary users
 users = client.get_database("azubi_wohnen")
+
 users_collections = users.get_collection("AllUsers")
 groups = users.get_collection("AllGroups")
 tasks = users.get_collection("Tasks")
