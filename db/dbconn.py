@@ -15,6 +15,7 @@ client = MongoClient(mongo_uri)
 users = client.get_database("azubi_wohnen")
 
 users_collections = users.get_collection("AllUsers")
+users_collections.create_index([("phone", 1)])
 groups = users.get_collection("AllGroups")
 tasks = users.get_collection("Tasks")
 completedtasks = users.get_collection("CompletedTask")

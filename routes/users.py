@@ -51,7 +51,8 @@ async def login_user(user: UserLogin):
     ```
     """
     memory_before = profile_memory()
-    found_user = users_collections.find_one({"phone": user.phone})
+    # Додати індекс для поля phone
+    found_user = users_collections.find_one({"phone": user.phone}, {"_id": 0, "password": 1})
     memory_after = profile_memory()
     if not found_user:
         error_id = str(uuid.uuid4())  # Генеруємо унікальний ID для помилки
